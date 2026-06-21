@@ -226,6 +226,73 @@ SELECT title, severity, created_at FROM alerts WHERE status='open' ORDER BY crea
 
 ---
 
+## OS Support
+
+### Linux — Supported Distributions
+
+The `setup.sh` script auto-detects your distro and installs Docker automatically if it is not present.
+
+| Distro Family | Distributions | Package Manager |
+|--------------|---------------|-----------------|
+| Debian/Ubuntu | Ubuntu 18+, Debian 10+, Kali, Linux Mint, Pop!_OS, elementary OS, Raspberry Pi OS | `apt` |
+| RHEL/Rocky | Rocky Linux, AlmaLinux, RHEL 8+, CentOS 8+ | `dnf` |
+| Fedora | Fedora 36+ | `dnf` |
+| Arch | Arch Linux, Manjaro, EndeavourOS, Garuda | `pacman` |
+| openSUSE | openSUSE Leap, Tumbleweed, SLES | `zypper` |
+| Alpine | Alpine Linux 3.14+ | `apk` |
+
+**One command to start on any supported distro:**
+```bash
+cd "/mnt/usb/Portable SIEM"
+./deploy/usb/setup.sh
+# Docker is installed automatically if not present
+```
+
+---
+
+### Windows — Supported Versions
+
+| Windows Version | Method | Installer |
+|----------------|--------|-----------|
+| Windows 7 / 8 / 8.1 | Docker Toolbox + VirtualBox | `deploy\windows\install-toolbox.bat` |
+| Windows 10 (build < 19041) | Docker Toolbox + VirtualBox | `deploy\windows\install-toolbox.bat` |
+| Windows 10 (build ≥ 19041) | Docker Desktop + WSL2 | `deploy\windows\install.ps1` |
+| Windows 11 | Docker Desktop + WSL2 | `deploy\windows\install.ps1` |
+
+#### Windows 10 / 11 — Quick Start
+
+Open **PowerShell as Administrator**:
+```powershell
+Set-ExecutionPolicy Bypass -Scope Process -Force
+cd "D:\Portable SIEM"   # replace D: with your USB drive letter
+.\deploy\windows\install.ps1
+```
+
+#### Windows 7 / 8 / 8.1 — Quick Start
+
+1. Install **VirtualBox**: https://www.virtualbox.org/wiki/Downloads
+2. Install **Docker Toolbox**: https://github.com/docker/toolbox/releases/latest
+3. Right-click `deploy\windows\install-toolbox.bat` → **Run as Administrator**
+
+> On Docker Toolbox the dashboard is at the Docker Machine IP, **not** localhost.
+> Run `docker-machine ip default` to get it. Typically `192.168.99.100`.
+
+**Full Windows installation guide:** [`deploy/windows/WINDOWS-INSTALL.md`](deploy/windows/WINDOWS-INSTALL.md)
+
+---
+
+### Windows — Open Required Firewall Ports
+
+Run in PowerShell as Administrator if agents cannot reach the SIEM:
+```powershell
+New-NetFirewallRule -DisplayName "SIEM Dashboard" -Direction Inbound -Protocol TCP -LocalPort 3000 -Action Allow
+New-NetFirewallRule -DisplayName "SIEM API"       -Direction Inbound -Protocol TCP -LocalPort 8888 -Action Allow
+New-NetFirewallRule -DisplayName "SIEM Syslog"    -Direction Inbound -Protocol UDP -LocalPort 514  -Action Allow
+New-NetFirewallRule -DisplayName "SIEM Agent"     -Direction Inbound -Protocol TCP -LocalPort 9000 -Action Allow
+```
+
+---
+
 ## Mounting the USB Drive
 
 ### Linux
