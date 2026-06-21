@@ -5,6 +5,78 @@ Plug it into any environment for instant security monitoring and incident respon
 
 ---
 
+## Troubleshooting
+
+A log of real issues encountered during deployment and their solutions.
+
+---
+
+### Issue 1 — `docker-compose: command not found`
+
+**Error:**
+```
+ERROR: docker-compose is required but not installed.
+```
+
+**Cause:** Rocky Linux / RHEL / Fedora ship Docker Compose as a plugin (`docker compose`) not as a standalone binary (`docker-compose`).
+
+**Solution:** Install the compose plugin:
+```bash
+sudo dnf install -y docker-compose-plugin
+```
+Or if you're on Debian/Ubuntu:
+```bash
+sudo apt install -y docker-compose-plugin
+```
+
+The `setup.sh` script now auto-detects both `docker compose` (v2) and `docker-compose` (v1) automatically.
+
+---
+
+### Issue 2 — `cp: cannot stat 'config.yaml': No such file or directory`
+
+**Error:**
+```
+cp: cannot stat '/mnt/usb/Portable SIEM/deploy/usb/config.yaml': No such file or directory
+```
+
+**Cause:** The setup script was resolving paths relative to its own location (`deploy/usb/`) instead of the project root.
+
+**Solution:** Fixed in `setup.sh` — `SIEM_DIR` now correctly resolves two levels up to the project root. No manual action needed.
+
+---
+
+### Issue 3 — `permission denied while trying to connect to the Docker socket`
+
+**Error:**
+```
+unable to get image 'redis:7-alpine': permission denied while trying to connect to the Docker API at unix:///var/run/docker.sock
+```
+
+**Cause:** Your user is not in the `docker` group and cannot access the Docker socket without `sudo`.
+
+**Solution:** Add your user to the `docker` group (one-time setup):
+```bash
+sudo usermod -aG docker $USER
+newgrp docker
+```
+Then retry `./deploy/usb/setup.sh`. No need to log out — `newgrp docker` applies the group immediately in the current session.
+
+---
+
+### Issue 4 — `version` attribute warning in docker-compose.yml
+
+**Warning:**
+```
+WARN: the attribute `version` is obsolete, it will be ignored
+```
+
+**Cause:** Docker Compose v2 no longer uses the `version:` field at the top of `docker-compose.yml`.
+
+**Solution:** Removed the `version: '3.9'` line from `docker-compose.yml`. No manual action needed.
+
+---
+
 ## Mounting the USB Drive
 
 ### Linux
