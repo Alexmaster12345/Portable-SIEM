@@ -21,7 +21,19 @@ check_dep() {
 }
 
 check_dep docker
-check_dep docker-compose || check_dep "docker compose"
+
+# Support both docker compose v2 (plugin) and docker-compose v1
+if docker compose version &>/dev/null 2>&1; then
+    COMPOSE="docker compose"
+elif command -v docker-compose &>/dev/null; then
+    COMPOSE="docker-compose"
+else
+    echo "ERROR: Docker Compose is required but not installed."
+    echo "  Install it with:"
+    echo "    sudo dnf install docker-compose-plugin   # Rocky/RHEL/Fedora"
+    echo "    sudo apt install docker-compose-plugin   # Debian/Ubuntu"
+    exit 1
+fi
 
 # Create data directory
 mkdir -p "${DATA_DIR}"/{postgres,redis,logs}
@@ -37,18 +49,18 @@ echo ""
 echo "Starting services..."
 cd "${SIEM_DIR}"
 
-docker compose up -d postgres redis nats
+$COMPOSE up -d postgres redis nats
 
 echo "Waiting for database..."
 sleep 5
 
 # Initialize DB
 echo "Initializing database..."
-docker compose exec -T postgres psql -U siem -d siem \
+$COMPOSE exec -T postgres psql -U siem -d siem \
     -f /docker-entrypoint-initdb.d/001_init.sql 2>/dev/null || true
 
 # Start SIEM server
-docker compose up -d siem-server siem-frontend
+$COMPOSE up -d siem-server siem-frontend
 
 echo ""
 echo "============================================"
@@ -64,5 +76,5 @@ echo ""
 echo "  To deploy Linux agents on target machines:"
 echo "  ./siem-agent-linux -server http://$(hostname -I | awk '{print $1}'):8080"
 echo ""
-echo "  To stop: docker compose down"
+echo "  To stop: cd "/path/to/Portable SIEM" && docker compose down"
 echo "============================================"
