@@ -3,6 +3,101 @@
 A portable Security Information and Event Management system that runs entirely from a USB drive.
 Plug it into any environment for instant security monitoring and incident response.
 
+---
+
+## Mounting the USB Drive
+
+### Linux
+
+**Find your USB device:**
+```bash
+lsblk -o NAME,SIZE,FSTYPE,TRAN,VENDOR,MOUNTPOINT
+# Look for tran=usb — typically /dev/sda or /dev/sdb
+```
+
+**Mount it:**
+```bash
+sudo mkdir -p /mnt/usb
+sudo mount /dev/sda1 /mnt/usb
+```
+
+**Or without sudo (auto-mount via udisks):**
+```bash
+udisksctl mount -b /dev/sda1
+# Mounts to /run/media/$USER/<label>
+```
+
+**Start the SIEM:**
+```bash
+cd /mnt/usb/"Portable SIEM"
+./deploy/usb/setup.sh
+```
+
+**Unmount when done:**
+```bash
+sudo umount /mnt/usb
+# or
+udisksctl unmount -b /dev/sda1
+```
+
+---
+
+### Windows
+
+**Find the drive letter:**
+
+The USB drive will appear automatically in File Explorer (e.g. `D:\`, `E:\`).
+
+To confirm via PowerShell:
+```powershell
+Get-Disk | Where-Object BusType -eq USB
+Get-Partition | Where-Object DiskNumber -eq 1 | Select DriveLetter, Size
+```
+
+**Start the SIEM (PowerShell as Administrator):**
+```powershell
+# Navigate to the drive (replace D: with your drive letter)
+cd "D:\Portable SIEM"
+
+# Run setup (requires Docker Desktop to be running)
+docker compose up -d
+```
+
+**Or via WSL2 (Windows Subsystem for Linux):**
+```bash
+# In WSL2, Windows drives are at /mnt/<letter>
+cd "/mnt/d/Portable SIEM"
+./deploy/usb/setup.sh
+```
+
+**Access the drive in WSL2 if not auto-mounted:**
+```bash
+sudo mkdir -p /mnt/d
+sudo mount -t drvfs D: /mnt/d
+```
+
+**Unmount when done (PowerShell):**
+```powershell
+# Right-click the USB in File Explorer → Eject
+# Or via PowerShell:
+$drive = Get-WmiObject Win32_Volume | Where-Object { $_.DriveType -eq 2 }
+$drive.Dismount($false, $false)
+```
+
+---
+
+### Requirements on Target Machine
+
+| Requirement | Linux | Windows |
+|-------------|-------|---------|
+| Docker Engine | `sudo apt install docker.io` | [Docker Desktop](https://www.docker.com/products/docker-desktop/) |
+| Docker Compose | included with Docker | included with Docker Desktop |
+| WSL2 (optional) | — | Recommended for script support |
+
+> **Note:** The USB drive is formatted as **exFAT**, which is readable on Linux, Windows, and macOS without extra drivers.
+
+---
+
 ## Architecture
 
 ```
