@@ -88,6 +88,21 @@ failed to compute cache key: "/go.sum": not found
 
 Similarly, `frontend/Dockerfile` was updated to use `npm install` instead of `npm ci` so it works without a `package-lock.json`.
 
+### Issue 6 — Docker build fails: Go compilation errors (exit code 1)
+
+**Error:**
+```
+RUN go mod tidy && CGO_ENABLED=0 GOOS=linux go build ... did not complete successfully: exit code: 1
+```
+
+**Cause:** Several Go source files had compilation errors:
+- `journald.go` — missing `"fmt"` import (`fmt.Sscan` was used without importing `fmt`)
+- `postgres.go` — missing `Pool()` method (called by the incident manager)
+- `correlation/engine.go` — field/parameter named `rules` conflicted with the imported package also named `rules`
+- `cmd/server/main.go` — missing `"models"` import (`models.Alert` used without import)
+
+**Solution:** All four files were fixed. No manual action needed.
+
 ---
 
 ## Mounting the USB Drive
