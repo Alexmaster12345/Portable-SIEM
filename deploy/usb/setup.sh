@@ -62,6 +62,27 @@ $COMPOSE exec -T postgres psql -U siem -d siem \
 # Start SIEM server
 $COMPOSE up -d siem-server siem-frontend
 
+echo "Waiting for SIEM server to be ready..."
+for i in $(seq 1 20); do
+    if curl -sf http://localhost:8888/health > /dev/null 2>&1; then
+        break
+    fi
+    echo "  attempt $i/20..."
+    sleep 3
+done
+
+# Check if server is actually up
+if ! curl -sf http://localhost:8888/health > /dev/null 2>&1; then
+    echo ""
+    echo "WARNING: SIEM server did not respond on port 8888."
+    echo "Showing container logs:"
+    echo "--- siem-server ---"
+    $COMPOSE logs --tail=30 siem-server
+    echo ""
+    echo "Run '$COMPOSE logs siem-server' for full logs."
+    exit 1
+fi
+
 echo ""
 echo "============================================"
 echo "  Portable SIEM is running!"
