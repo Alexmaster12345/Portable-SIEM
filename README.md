@@ -103,6 +103,127 @@ RUN go mod tidy && CGO_ENABLED=0 GOOS=linux go build ... did not complete succes
 
 **Solution:** All four files were fixed. No manual action needed.
 
+### Issue 7 — Server connects to `localhost` instead of Docker container (env vars ignored)
+
+**Error:**
+```
+ping postgres: failed to connect to `user=siem database=siem`:
+    127.0.0.1:5432 (localhost): dial error: connection refused
+```
+
+**Cause:** Viper's `AutomaticEnv()` only works for flat keys. For nested keys like `database.host`, Viper requires a key replacer that converts `DATABASE_HOST` → `database.host`. Without it, the env vars set in `docker-compose.yml` are silently ignored and the server reads `localhost` from `config.yaml`.
+
+**Solution:** Added `viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))` in `pkg/config/config.go`. No manual action needed — but you must rebuild the Docker image after pulling:
+
+```bash
+docker compose down siem-server
+docker compose build siem-server
+docker compose up -d siem-server
+```
+
+---
+
+## Debugging
+
+### Check container status
+
+```bash
+docker ps -a
+```
+
+### View live server logs
+
+```bash
+docker logs -f siem-server
+```
+
+### Check all container logs at once
+
+```bash
+docker compose logs --tail=50
+```
+
+### Test server health
+
+```bash
+curl http://localhost:8888/health
+# Expected: {"status":"ok","service":"portable-siem"}
+```
+
+### Test the API
+
+```bash
+# List events
+curl http://localhost:8888/api/v1/events
+
+# List alerts
+curl http://localhost:8888/api/v1/alerts
+
+# Event stats (last 24h)
+curl http://localhost:8888/api/v1/events/stats
+
+# Search logs
+curl "http://localhost:8888/api/v1/search?q=failed+password"
+```
+
+### Seed test data (populate dashboard)
+
+```bash
+./deploy/usb/seed-test-data.sh
+# Sends 200+ realistic events: brute force, logins, port scan, sudo, user creation
+```
+
+### Restart a single container
+
+```bash
+docker compose restart siem-server
+docker compose restart siem-frontend
+```
+
+### Rebuild after a code change
+
+```bash
+docker compose down siem-server
+docker compose build siem-server
+docker compose up -d siem-server
+```
+
+### Check port conflicts
+
+```bash
+ss -tlnp | grep -E "8888|3000|514|5432|6379"
+```
+
+### Check what is using a port
+
+```bash
+ss -tlnp | grep 8080
+# or
+sudo lsof -i :8080
+```
+
+### Reset everything (wipe all data)
+
+```bash
+docker compose down -v   # -v removes named volumes (postgres + redis data)
+docker compose up -d
+```
+
+### Connect directly to the database
+
+```bash
+docker exec -it siem-postgres psql -U siem -d siem
+
+-- Count events
+SELECT COUNT(*) FROM events;
+
+-- Events by source
+SELECT source, COUNT(*) FROM events GROUP BY source;
+
+-- Open alerts
+SELECT title, severity, created_at FROM alerts WHERE status='open' ORDER BY created_at DESC;
+```
+
 ---
 
 ## Mounting the USB Drive
