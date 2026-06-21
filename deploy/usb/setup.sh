@@ -5,7 +5,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SIEM_DIR="${SCRIPT_DIR}"
+SIEM_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 DATA_DIR="${HOME}/.portable-siem"
 
 echo "============================================"
