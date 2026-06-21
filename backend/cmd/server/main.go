@@ -18,6 +18,7 @@ import (
 	"github.com/portable-siem/siem/internal/correlation"
 	"github.com/portable-siem/siem/internal/incident"
 	"github.com/portable-siem/siem/internal/intelligence"
+	"github.com/portable-siem/siem/internal/models"
 	"github.com/portable-siem/siem/internal/parser"
 	"github.com/portable-siem/siem/internal/rules"
 	"github.com/portable-siem/siem/internal/search"

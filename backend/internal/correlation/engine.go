@@ -16,18 +16,18 @@ import (
 
 // Engine correlates events using threshold-based rules.
 type Engine struct {
-	rules  *rules.Engine
-	redis  *storage.RedisStore
-	alerts chan<- *models.Alert
+	ruleEngine *rules.Engine
+	redis      *storage.RedisStore
+	alerts     chan<- *models.Alert
 }
 
-func NewEngine(rules *rules.Engine, redis *storage.RedisStore, alerts chan<- *models.Alert) *Engine {
-	return &Engine{rules: rules, redis: redis, alerts: alerts}
+func NewEngine(ruleEngine *rules.Engine, redis *storage.RedisStore, alerts chan<- *models.Alert) *Engine {
+	return &Engine{ruleEngine: ruleEngine, redis: redis, alerts: alerts}
 }
 
 // Process evaluates an event against all correlation rules.
 func (e *Engine) Process(ctx context.Context, event *models.Event) {
-	matched := e.rules.Match(ctx, event)
+	matched := e.ruleEngine.Match(ctx, event)
 	for _, rule := range matched {
 		switch rule.Type {
 		case models.RuleTypeThreshold:

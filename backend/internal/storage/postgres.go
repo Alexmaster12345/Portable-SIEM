@@ -35,6 +35,8 @@ func NewPostgresStore(cfg config.DatabaseConfig) (*PostgresStore, error) {
 
 func (s *PostgresStore) Close() { s.pool.Close() }
 
+func (s *PostgresStore) Pool() *pgxpool.Pool { return s.pool }
+
 // ---- Events ----
 
 func (s *PostgresStore) InsertEvent(ctx context.Context, e *models.Event) error {
