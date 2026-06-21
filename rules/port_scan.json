@@ -1,0 +1,17 @@
+{
+  "id": "port_scan",
+  "name": "Port Scan Detection",
+  "description": "Detects a single source IP generating a high number of firewall DENY events across many destination ports.",
+  "type": "threshold",
+  "enabled": true,
+  "severity": "medium",
+  "source": "network_syslog",
+  "event_type": "firewall_deny",
+  "conditions": [],
+  "threshold": 100,
+  "window_secs": 60,
+  "group_by": ["src_ip"],
+  "actions": ["alert"],
+  "mitre_ids": ["T1046"],
+  "tags": ["network", "scan", "reconnaissance"]
+}

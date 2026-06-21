@@ -1,0 +1,17 @@
+{
+  "id": "ssh_brute_force",
+  "name": "SSH Brute Force",
+  "description": "Detects repeated failed SSH login attempts from the same source IP within a short window.",
+  "type": "threshold",
+  "enabled": true,
+  "severity": "high",
+  "source": "auth",
+  "event_type": "login_failed",
+  "conditions": [],
+  "threshold": 50,
+  "window_secs": 300,
+  "group_by": ["src_ip"],
+  "actions": ["alert"],
+  "mitre_ids": ["T1110", "T1110.001"],
+  "tags": ["ssh", "brute-force", "authentication"]
+}

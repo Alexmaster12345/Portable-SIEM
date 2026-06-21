@@ -1,0 +1,37 @@
+[
+  {
+    "type": "ip",
+    "value": "185.220.101.1",
+    "confidence": 90,
+    "source": "sample",
+    "tags": ["tor-exit-node", "malicious"]
+  },
+  {
+    "type": "ip",
+    "value": "1.2.3.4",
+    "confidence": 85,
+    "source": "sample",
+    "tags": ["c2", "botnet"]
+  },
+  {
+    "type": "domain",
+    "value": "malware-c2.example.com",
+    "confidence": 95,
+    "source": "sample",
+    "tags": ["c2", "malware"]
+  },
+  {
+    "type": "hash",
+    "value": "44d88612fea8a8f36de82e1278abb02f",
+    "confidence": 100,
+    "source": "sample",
+    "tags": ["malware", "ransomware"]
+  },
+  {
+    "type": "ip",
+    "value": "10.0.0.1",
+    "confidence": 50,
+    "source": "sample",
+    "tags": ["suspicious"]
+  }
+]

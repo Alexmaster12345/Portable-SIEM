@@ -1,0 +1,17 @@
+{
+  "id": "impossible_travel",
+  "name": "Impossible Travel",
+  "description": "Detects when a user authenticates from two geographically distant locations within an impossibly short time window.",
+  "type": "correlation",
+  "enabled": true,
+  "severity": "critical",
+  "source": "auth",
+  "event_type": "login_success",
+  "conditions": [],
+  "threshold": 2,
+  "window_secs": 7200,
+  "group_by": ["username"],
+  "actions": ["alert", "escalate"],
+  "mitre_ids": ["T1078"],
+  "tags": ["travel", "authentication", "anomaly"]
+}

@@ -1,0 +1,23 @@
+{
+  "id": "user_account_created",
+  "name": "New User Account Created",
+  "description": "Detects creation of a new local user account which may indicate persistence mechanisms.",
+  "type": "threshold",
+  "enabled": true,
+  "severity": "medium",
+  "source": "auth",
+  "event_type": "user_change",
+  "conditions": [
+    {
+      "field": "message",
+      "operator": "contains",
+      "value": "useradd"
+    }
+  ],
+  "threshold": 1,
+  "window_secs": 1,
+  "group_by": ["host"],
+  "actions": ["alert"],
+  "mitre_ids": ["T1136.001"],
+  "tags": ["persistence", "account", "linux"]
+}

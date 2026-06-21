@@ -1,0 +1,23 @@
+{
+  "id": "privilege_escalation",
+  "name": "Privilege Escalation via Sudo",
+  "description": "Detects a user escalating privileges via sudo to run sensitive commands.",
+  "type": "threshold",
+  "enabled": true,
+  "severity": "high",
+  "source": "auth",
+  "event_type": "sudo",
+  "conditions": [
+    {
+      "field": "message",
+      "operator": "contains",
+      "value": "sudo"
+    }
+  ],
+  "threshold": 5,
+  "window_secs": 600,
+  "group_by": ["username", "host"],
+  "actions": ["alert"],
+  "mitre_ids": ["T1548.003"],
+  "tags": ["privilege-escalation", "sudo", "linux"]
+}
