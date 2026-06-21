@@ -1,11 +1,15 @@
 FROM golang:1.22-alpine AS builder
 
 WORKDIR /app
-COPY go.mod go.sum ./
-RUN go mod download
 
+# Copy module file and download deps (go.sum generated automatically if missing)
+COPY go.mod ./
+RUN go mod download && go mod tidy || true
+
+# Copy full source and build
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o siem-server ./cmd/server
+RUN go mod tidy && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o siem-server ./cmd/server
 
 FROM alpine:3.20
 RUN apk add --no-cache ca-certificates tzdata

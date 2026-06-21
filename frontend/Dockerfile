@@ -1,8 +1,10 @@
 FROM node:20-alpine AS builder
 
 WORKDIR /app
-COPY package.json package-lock.json* ./
-RUN npm ci
+
+# Copy package files — use npm install (works with or without lockfile)
+COPY package.json ./
+RUN npm install
 
 COPY . .
 RUN npm run build
