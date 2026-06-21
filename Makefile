@@ -20,9 +20,16 @@ backend:
 frontend:
 	cd frontend && npm run dev
 
-# Build Linux agent
+# Build Linux agent (uses Docker if go is not installed locally)
 agent-linux:
-	cd agents/linux-agent && go build -o ../../dist/siem-agent-linux .
+	@if command -v go > /dev/null 2>&1; then \
+		cd agents/linux-agent && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ../../dist/siem-agent-linux . ; \
+	else \
+		docker run --rm -v "$(PWD)/agents/linux-agent":/app -w /app golang:1.22-alpine \
+			sh -c "go mod tidy && CGO_ENABLED=0 GOOS=linux go build -ldflags='-s -w' -o siem-agent-linux ." && \
+		mkdir -p dist && cp agents/linux-agent/siem-agent-linux dist/ ; \
+	fi
+	@echo "Agent built: dist/siem-agent-linux"
 
 # Build all agents
 agents:
