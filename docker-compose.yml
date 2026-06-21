@@ -54,6 +54,15 @@ services:
         condition: service_healthy
     environment:
       SIEM_CONFIG: /app/config.yaml
+      DATABASE_HOST: siem-postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: siem
+      DATABASE_USER: siem
+      DATABASE_PASSWORD: siem
+      DATABASE_SSLMODE: disable
+      REDIS_HOST: siem-redis
+      REDIS_PORT: 6379
+      NATS_URL: nats://siem-nats:4222
     volumes:
       - ./config.yaml:/app/config.yaml:ro
       - ./rules:/app/rules:ro
