@@ -59,7 +59,7 @@ services:
       - ./rules:/app/rules:ro
       - ./intelligence:/app/intelligence:ro
     ports:
-      - "8080:8080"
+      - "8888:8080"
       - "514:514/udp"
       - "9000:9000"
 

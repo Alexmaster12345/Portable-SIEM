@@ -274,7 +274,7 @@ make backend
 make frontend
 
 # Dashboard: http://localhost:3000
-# API:       http://localhost:8080/api/v1
+# API:       http://localhost:8888/api/v1
 ```
 
 ### Build for USB
